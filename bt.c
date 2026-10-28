@@ -54,6 +54,27 @@ void mirror(Node *r){if(!r)return;Node *t=r->left;r->left=r->right;r->right=t;mi
 Node *copyTree(Node *r){if(!r)return NULL;Node *p=newNode(r->data);p->left=copyTree(r->left);p->right=copyTree(r->right);return p;}
 void freeTree(Node *r){if(r){freeTree(r->left);freeTree(r->right);free(r);}}
 
+Node *deleteBT(Node *r,int x){
+    if(!r)return NULL;
+    Node *q[MAX],*target=NULL,*last=NULL,*par=NULL;
+    int f=0,b=0;
+    q[b++]=r;
+    while(f<b){
+        Node *p=q[f++];
+        if(p->data==x)target=p;
+        if(p->left){par=p;q[b++]=p->left;}
+        if(p->right){par=p;q[b++]=p->right;}
+        last=p;
+    }
+    if(!target)return r;
+    if(last==r){free(r);return NULL;}
+    target->data=last->data;
+    if(par->left==last)par->left=NULL;
+    else par->right=NULL;
+    free(last);
+    return r;
+}
+
 int main(){
     Node *root,*p,*par,*sib,*c;int x;
     printf("Enter tree in preorder (-1 for NULL):\n");
@@ -66,6 +87,11 @@ int main(){
     printf("\nIterative preorder: ");preorderIter(root);
     printf("\nIterative postorder: ");postorderIter(root);
     printf("\nLevel order: ");levelorder(root);
+    printf("Enter value to delete: ");
+    scanf("%d",&x);
+    root=deleteBT(root,x);
+    printf("After deletion: ");
+    levelorder(root);
 
     printf("\nTotal=%d Leaves=%d NonLeaf=%d OneChild=%d TwoChildren=%d",count(root),leaves(root),nonLeaf(root),oneChild(root),twoChildren(root));
     printf("\nOnlyLeft=%d OnlyRight=%d Sum=%d Height=%d\n",onlyLeft(root),onlyRight(root),sum(root),height(root));
