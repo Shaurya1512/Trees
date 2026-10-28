@@ -1,0 +1,136 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 100
+
+typedef struct node{
+    int data;
+    struct node *next;
+}Node;
+
+int a[MAX][MAX],vis[MAX],q[MAX],n;
+Node *list[MAX];
+
+void add(int u,int v){
+    Node *p=malloc(sizeof(Node));
+    if(!p)exit(1);
+    p->data=v;p->next=NULL;
+    if(!list[u])list[u]=p;
+    else{
+        Node *t=list[u];
+        while(t->next)t=t->next;
+        t->next=p;
+    }
+}
+
+void matrix(){
+    printf("\nAdjacency Matrix:\n");
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++)printf("%d ",a[i][j]);
+        printf("\n");
+    }
+}
+
+void adjacencyList(){
+    printf("\nAdjacency List:\n");
+    for(int i=0;i<n;i++){
+        printf("%d -> ",i);
+        Node *p=list[i];
+        while(p){printf("%d -> ",p->data);p=p->next;}
+        printf("NULL\n");
+    }
+}
+
+void reset(){
+    for(int i=0;i<n;i++)vis[i]=0;
+}
+
+void bfs(int start){
+    reset();
+    int f=0,r=0;
+    vis[start]=1;q[r++]=start;
+    while(f<r){
+        int u=q[f++];
+        printf("%d ",u);
+        for(int i=0;i<n;i++){
+            if(a[u][i]&&!vis[i]){
+                vis[i]=1;
+                q[r++]=i;
+            }
+        }
+    }
+}
+
+void dfs(int u){
+    vis[u]=1;
+    printf("%d ",u);
+    for(int i=0;i<n;i++)
+        if(a[u][i]&&!vis[i])dfs(i);
+}
+
+void freeList(){
+    for(int i=0;i<n;i++){
+        Node *p=list[i];
+        while(p){Node *t=p;p=p->next;free(t);}
+        list[i]=NULL;
+    }
+}
+
+int main(){
+    int e,u,v,type,ch,start;
+
+    printf("Enter vertices and edges: ");
+    scanf("%d%d",&n,&e);
+    if(n<1||n>MAX||e<0)return 1;
+
+    printf("1.Directed 2.Undirected: ");
+    scanf("%d",&type);
+    if(type!=1&&type!=2)return 1;
+
+    for(int i=0;i<e;i++){
+        printf("Enter edge: ");
+        scanf("%d%d",&u,&v);
+        if(u<0||v<0||u>=n||v>=n){
+            printf("Invalid edge\n");
+            i--;
+            continue;
+        }
+        a[u][v]=1;add(u,v);
+        if(type==2&&u!=v){
+            a[v][u]=1;add(v,u);
+        }
+    }
+
+    do{
+        printf("\n1.Adjacency Matrix");
+        printf("\n2.Adjacency List");
+        printf("\n3.BFS");
+        printf("\n4.DFS");
+        printf("\n5.Exit");
+        printf("\nEnter choice: ");
+        scanf("%d",&ch);
+
+        switch(ch){
+            case 1:matrix();break;
+            case 2:adjacencyList();break;
+            case 3:
+                printf("Enter starting vertex: ");
+                scanf("%d",&start);
+                if(start<0||start>=n){printf("Invalid vertex\n");break;}
+                printf("BFS: ");bfs(start);printf("\n");
+                break;
+            case 4:
+                printf("Enter starting vertex: ");
+                scanf("%d",&start);
+                if(start<0||start>=n){printf("Invalid vertex\n");break;}
+                reset();
+                printf("DFS: ");dfs(start);printf("\n");
+                break;
+            case 5:break;
+            default:printf("Invalid choice\n");
+        }
+    }while(ch!=5);
+
+    freeList();
+    return 0;
+}
